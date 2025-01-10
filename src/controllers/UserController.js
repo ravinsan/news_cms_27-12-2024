@@ -6,10 +6,6 @@ import mongoose from "mongoose";
 export const userIndex = async (req, res) =>{
      try{
             const users = await User.find();
-            console.log(users);
-
-            
-
             return res.status(200).json({message:"User records are successfully get", data:users});
      }
      catch(err)
@@ -69,8 +65,6 @@ export const userView = async (req, res) => {
 }
 
 export const userUpdate = async (req, res) => {
-    console.log(req.body);
-    console.log(req.file);
     const {name, mobile, status, role_id, reporting_head_id, reporting_user_id} = req.body;
     try{
         const id = req.params.id;
@@ -107,10 +101,9 @@ export const userUpdate = async (req, res) => {
 }
 
 export const userDelete = async (req, res) => {
-    console.log("hello");
     try{
           const id = req.params.id;
-          const userDel = await User.findOneAndDelete(id);
+          const userDel = await User.findByIdAndDelete(id);
           if(!userDel)
           {
             return res.status(400).json({message:"User is not found"});
@@ -124,5 +117,29 @@ export const userDelete = async (req, res) => {
 }
 
 export const userStatus = async (req, res) => {
+   try{
+        const id = req.params.id;
+        const user = await User.findById(id);
+        // if(user.status == true)
+        // {
+        //     user.status = false
+        // }
+        // else{
+        //     user.status = true;
+        // }
+        //     user.updated_by = req.user.id;
+        // await User.findByIdAndUpdate(id, user);
 
+        const updated = await User.findByIdAndUpdate(
+            id,
+            { status: !user.status }, 
+        );
+        const data = await User.findById(id);
+        return res.status(200).json({message:"Status is successfully change", data:data});
+   }
+   catch(err)
+   {
+      console.log(err);
+      return res.status(500).json({message:"Something wents wrong"});
+   }
 } 

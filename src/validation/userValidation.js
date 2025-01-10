@@ -1,45 +1,107 @@
-import { z } from "zod";
+import { check } from "express-validator";
+import { User } from "../models/user.model.js";
 
-export const userValidation = z.object({
-  name: z
-    .string({ required_error: "Name is required" })
+export const userValidation = [
+  check("name")
     .trim()
-    .min(3, { message: "Name must be at least 3 characters" })
-    .max(150, { message: "Name must be at most 150 characters" }),
+    .notEmpty()
+    .withMessage("Name is required")
+    .isLength({ min: 3, max: 150 })
+    .withMessage("Name must be between 3 and 150 characters"),
 
-    email: z
-    .string({ required_error: "Email is required" })
+  check("email")
     .trim()
-    .email({ message: "Invalid email address" })
-    .min(4, { message: "Email must be at least 4 characters" })
-    .max(150, { message: "Email must be at most 150 characters" }),
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email address")
+    .isLength({ min: 4, max: 150 })
+    .withMessage("Email must be between 4 and 150 characters")
+    .custom(async (email) => {
+        const existingUser = await User.findOne({ email: email });
+        if (existingUser) {
+        throw new Error("Email already exists");
+        }
+        return true;
+    }),
 
-    password: z
-        .string({ required_error: "Password is required" })
-        .trim()
-        .min(8, { message: "Password must be at least 8 characters" })
-        .max(100, { message: "Password must be at most 100 characters" }),
+  check("password")
+    .trim()
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 8, max: 100 })
+    .withMessage("Password must be between 8 and 100 characters"),
 
-    mobile: z
-        .string({ required_error: "Mobile is required" })
-        .trim()
-        .min(10, { message: "Mobile must be at least 10 characters" })
-        .max(10, { message: "Mobile must be at most 10 characters" }),
+  check("mobile")
+    .trim()
+    .notEmpty()
+    .withMessage("Mobile is required")
+    .isLength({ min: 10, max: 10 })
+    .withMessage("Mobile must be exactly 10 characters")
+    .isNumeric()
+    .withMessage("Mobile must contain only numeric characters"),
 
-    role_id: z
-        .string({ required_error: "Role is required" })
-        .trim()
-        .min(10, { message: "Role must be at least 10 characters" })
-        .max(10, { message: "Role must be at most 10 characters" }),
+  check("role_id")
+    .trim()
+    .notEmpty()
+    .withMessage("Role is required")
+    .withMessage("Role must be exactly 10 characters"),
 
-    reporting_head_id: z
-        .optional(),
+  check("reporting_head_id")
+    .optional(),
 
-    reporting_user_id: z
-        .optional(),
+  check("reporting_user_id")
+    .optional(),
 
-    image: z
-        .optional(),
+  check("image")
+    .optional(),
 
-    status: z.number({ required_error: "status is required" }),
-});
+  check("status")
+    .notEmpty()
+    .withMessage("Status is required")
+    .isNumeric()
+    .withMessage("Status must be a number")
+    .isIn([0, 1])
+    .withMessage("Status must be either 0 (Inactive) or 1 (Active)"),
+];
+
+export const userUpdateValidation = [
+  check("name")
+    .trim()
+    .notEmpty()
+    .withMessage("Name is required")
+    .isLength({ min: 3, max: 150 })
+    .withMessage("Name must be between 3 and 150 characters"),
+
+  check("mobile")
+    .trim()
+    .notEmpty()
+    .withMessage("Mobile is required")
+    .isLength({ min: 10, max: 10 })
+    .withMessage("Mobile must be exactly 10 characters")
+    .isNumeric()
+    .withMessage("Mobile must contain only numeric characters"),
+
+  check("role_id")
+    .trim()
+    .notEmpty() 
+    .withMessage("Role is required")
+    .withMessage("Role must be exactly 10 characters"),
+
+  check("reporting_head_id")
+    .optional(),
+
+  check("reporting_user_id")
+    .optional(),
+
+  check("image")
+    .optional(),
+
+  check("status")
+    .notEmpty()
+    .withMessage("Status is required")
+    .isNumeric()
+    .withMessage("Status must be a number") 
+    .isIn([0, 1])
+    .withMessage("Status must be either 0 (Inactive) or 1 (Active)"),   
+];

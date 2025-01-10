@@ -1,26 +1,22 @@
-import { z } from "zod";
+import { validationResult } from "express-validator";
 
-export const ValidationMiddleware = (schema) => async (req, res, next) => {
-  try {
-    // Validate the request body
-    console.log(req.body);
-    const parsedBody = await schema.parseAsync(req.body);
+export const ValidationMiddleware = (validations) => {
+  return async (req, res, next) => {
+    // Run all validations
+    await Promise.all(validations.map((validation) => validation.run(req)));
 
-    // Validate the uploaded file (if required)
-    if (schema.shape.image && req.file) {
-      const fileValidation = schema.shape.image.safeParse(req.file);
-      if (!fileValidation.success) {
-        throw fileValidation.error;
-      }
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // Map the errors to only send the first error per field
+      const errorMessages = Object.values(errors.mapped()).map((error) => ({
+        key: error.path,
+        message: error.msg,
+      }));
+
+      return res.status(400).json({ errors: errorMessages });
     }
 
-    // Attach the validated body to the request
-    req.body = parsedBody;
     next();
-  } catch (err) {
-    // Handle validation errors
-    const message =
-      err.errors?.[0]?.message || "Validation failed. Check your input.";
-    return res.status(400).json({ message });
-  }
+  };
 };

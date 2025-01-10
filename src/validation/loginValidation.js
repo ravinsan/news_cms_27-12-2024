@@ -1,16 +1,27 @@
-import { z } from "zod";
+import { check } from "express-validator";
+import { User } from "../models/user.model.js";
 
-export const loginValidation = z.object({
-  email: z
-    .string({ required_error: "Email is required" })
+export const loginValidation = [
+  check("email")
     .trim()
-    .email({ message: "Invalid email address" })
-    .min(4, { message: "Email must be at least 4 characters" })
-    .max(150, { message: "Email must be at most 150 characters" }),
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email address")
+    .isLength({ min: 4, max: 150 })
+    .withMessage("Email must be between 4 and 150 characters")
+    .custom(async (email) => {
+        const existingUser = await User.findOne({ email: email });
+        if (!existingUser) {
+        throw new Error("Email not found");
+        }
+        return true;
+    }),
 
-  password: z
-    .string({ required_error: "Password is required" })
+  check("password")
     .trim()
-    .min(8, { message: "Password must be at least 8 characters" })
-    .max(100, { message: "Password must be at most 100 characters" }),
-});
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 8, max: 100 })
+    .withMessage("Password must be between 8 and 100 characters"),
+];
