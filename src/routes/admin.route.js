@@ -19,12 +19,21 @@ import { categoryValidation, categoryUpdateValidation } from "../validation/cate
 // Multer setup for file uploads
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const folderName = req.body.folder || 'default'; 
-        const uploadPath = path.join(__dirname, 'uploads', folderName);
+        // let folderName = req.body.folder || "default"; 
+        let folderName = req.query.fd || "default";
+        // Remove trailing slash if present
+        folderName = folderName.replace(/\/$/, "");
+
+        const uploadPath = path.join(__dirname, "..", "..", "uploads", folderName);
+
+        console.log("Uploading to:", uploadPath); // Debugging ke liye
+
+
         fs.mkdirSync(uploadPath, { recursive: true });
-        cb(null, uploadPath); 
+        cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
         const uniqueName = `${Date.now()}-${file.originalname}`;
@@ -32,7 +41,7 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage: storage });
 
 
 const Route = Router();
