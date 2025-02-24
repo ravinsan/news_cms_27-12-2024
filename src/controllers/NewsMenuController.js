@@ -15,16 +15,13 @@ export const newsMenuIndex = async (req, res) => {
 // News menu store
 export const newsMenuStore = async (req, res)=>
 {       
-   const {name, slug, parent_id, mega_menu_status, frontend_menu_status, page_design_status, status} = req.body;
+   const {name, slug, parent_id, mega_menu_status, status} = req.body;
    try{
        const newsmenu = await NewsMenu.create({
                name:name,
                slug:slug,
                parent_id: (parent_id && parent_id !==null) ? parent_id : null,
-               image:(req.file && req.file.filename) ? req.file.filename : null,
                mega_menu_status : mega_menu_status,
-               frontend_menu_status : frontend_menu_status,
-               page_design_status : page_design_status,
                status : status,
                created_by : req.user.id,
                updated_by : req.user.id
@@ -62,6 +59,7 @@ export const newsMenuView = async (req, res) =>{
 
 export const newsMenuUpdate = async (req, res) =>{
    try{
+        const {name, slug, parent_id, mega_menu_status, status} = req.body;
         const id = req.params.id;
         const newsmenu = await NewsMenu.findById(id);
         if(!newsmenu)
@@ -72,13 +70,7 @@ export const newsMenuUpdate = async (req, res) =>{
         newsmenu.name = name;
         newsmenu.slug = slug;
         newsmenu.parent_id = (parent_id && parent_id !==null) ? parent_id : null;
-        if(req.file && req.file.filename)
-        {
-            category.image = req.file.filename;
-        }
         newsmenu.mega_menu_status = mega_menu_status;
-        newsmenu.frontend_menu_status = frontend_menu_status;
-        newsmenu.page_design_status = page_design_status;
         newsmenu.status = status;
         newsmenu.updated_by = req.user.id;
         await newsmenu.save();
@@ -93,7 +85,7 @@ export const newsMenuUpdate = async (req, res) =>{
 export const newsMenuDelete = async (req, res) => {
    try{
         const id = req.params.id;
-        const newsmenu = await NewsMenu.findByIdAndUpdate(id);
+        const newsmenu = await NewsMenu.findByIdAndDelete(id);
         if(!newsmenu)
         {
          return res.status(400).json({message:"News menu has not found"});

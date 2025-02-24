@@ -4,10 +4,9 @@ export const categoryIndex = async (req, res) => {
    try {
         const category = await Category.find();
         const baseUrl = process.env.BASE_URL || 'http://localhost:5000/'; 
-        const formattedBaseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
 
         for (let i = 0; i < category.length; i++) {
-            category[i].image = formattedBaseUrl + 'category/' + category[i].image;
+            category[i].image = baseUrl + 'category/' + category[i].image;
         }
        
        return res.status(200).json({ message: "Category has been successfully retrieved.", data: category });
@@ -49,8 +48,15 @@ export const categoryView = async (req, res)=>{
     try{
          const id = req.params.id;
          const category = await Category.findById(id);
+         if(!category)
+         {
+            return res.status(400).json({message:"Category has not been found."});
+         }
          const baseUrl = process.env.BASE_URL || 'http://localhost:5000/'; 
-         category.image = baseUrl + 'category/' + category.image;
+         if(category.image && category.image !== null)
+         {
+            category.image = baseUrl + 'category/' + category.image;
+         }
          if(!category)
          {
             return res.status(400).json({message:"Category has not been found"});
