@@ -5,6 +5,6 @@ import { loginValidation } from "../validation/loginValidation.js";
 
 const Route = Router();
 
-Route.post("/login", ValidationMiddleware(loginValidation), login);
+Route.post("/login", login);
 
 export default Route;

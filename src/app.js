@@ -5,10 +5,12 @@ import NewsMenu from "./routes/newsmenu.route.js";
 import Region from "./routes/region.route.js";
 import VideoNews from "./routes/videoNews.route.js";
 import News from "./routes/news.route.js";
+import cors from "cors";
 
 const app = express();
 app.use(express.urlencoded({ extended: true })); //accept request from x-www-form-urlencoded
 app.use(express.json()); // for parsing application/json (for geting request data) -> not found json data that's why using this
+app.use(cors('*'));
 
 app.use(express.static('uploads'));
 app.use('/api/v1', AuthRoute);
