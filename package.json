@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "seeder": "node src/seeder/roleSeeder.js"
+    "seeder": "node src/seeder/roleSeeder.js",
+    "seeder2": "node src/seeder/userSeeder.js"
   },
   "author": "",
   "license": "ISC",
